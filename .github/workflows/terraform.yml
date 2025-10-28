@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest # Use a Linux runner (common for Terraform)
     env:
       # Set AWS region as an environment variable
-      AWS_REGION: 'PASTE_YOUR_AWS_REGION_HERE'
+      AWS_REGION: 'us-east-1'
       # Set the ARN of the IAM Role GitHub Actions will assume
       AWS_ROLE_ARN: 'PASTE_YOUR_IAM_ROLE_ARN_HERE'
 

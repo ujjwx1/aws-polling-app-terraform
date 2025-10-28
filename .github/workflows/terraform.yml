@@ -1,0 +1,62 @@
+name: 'Terraform CI/CD'
+
+# Controls when the workflow will run
+on:
+  push:
+    branches:
+      - main # Run 'apply' when code is pushed/merged to main
+  pull_request:
+    branches:
+      - main # Run 'plan' when a PR targets main
+
+permissions:
+  id-token: write # Required for requesting the JWT OIDC token
+  contents: read # Required for actions/checkout
+
+jobs:
+  terraform:
+    name: 'Terraform Plan/Apply'
+    runs-on: ubuntu-latest # Use a Linux runner (common for Terraform)
+    env:
+      # Set AWS region as an environment variable
+      AWS_REGION: 'PASTE_YOUR_AWS_REGION_HERE'
+      # Set the ARN of the IAM Role GitHub Actions will assume
+      AWS_ROLE_ARN: 'PASTE_YOUR_IAM_ROLE_ARN_HERE'
+
+    steps:
+    # 1. Checkout code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Configure AWS Credentials using OIDC
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # 3. Setup Terraform
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      # Optional: specify Terraform version
+      # with:
+      #   terraform_version: 1.6.0
+
+    # 4. Terraform Init
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    # 5. Terraform Plan (only on Pull Requests)
+    - name: Terraform Plan
+      id: plan
+      # Only run this step if the event is a pull request
+      if: github.event_name == 'pull_request'
+      run: terraform plan -no-color # -no-color for cleaner logs
+      # Optional: Add plan output to PR comments (requires more permissions)
+
+    # 6. Terraform Apply (only on push to main branch)
+    - name: Terraform Apply
+      # Only run this step if the event is a push to the main branch
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -no-color # Auto-approve for automation

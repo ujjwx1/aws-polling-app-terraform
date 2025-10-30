@@ -21,8 +21,7 @@ jobs:
       # Set AWS region as an environment variable
       AWS_REGION: 'us-east-1'
       # Set the ARN of the IAM Role GitHub Actions will assume
-      AWS_ROLE_ARN: 'PASTE_YOUR_IAM_ROLE_ARN_HERE'
-
+      AWS_ROLE_ARN: 'arn:aws:iam::972856233428:role/GitHubActions-TerraformAdminRole'
     steps:
     # 1. Checkout code
     - name: Checkout Code
